@@ -1,4 +1,5 @@
 [
     { "name": "UV Stripes", "url": "ghostyles3d/uv-stripes.js" },
-    { "name": "UV Experiment", "url": "ghostyles3d/uv-experiment.js" }
+    { "name": "UV Periodic", "url": "ghostyles3d/uv-experiment.js" },
+    { "name": "UV Perlin", "url": "ghostyles3d/uv-perlin.js" }
 ]

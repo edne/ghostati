@@ -1,6 +1,6 @@
 /**
  * ==Ghostyle3D==
- * @name         UV Perlin
+ * @name         UV Periodic
  * @version      0.3.0
  * @author       NINA
  * @description  Strisce/chevron oblique disegnate sul volto in spazio UV canonico (port da viso/StripePaletteRenderer).
@@ -16,14 +16,10 @@
  */
 
 
-import perlinNoise from 'https://cdn.jsdelivr.net/npm/perlin-noise@0.0.1/+esm'
-
-let perlin = perlinNoise.generatePerlinNoise(128,128);
-console.log(perlin);
 
 export const params = [
-   { name: 'threshold',    type: 'range',  label: 'threshold',    min: 0,    max: 255, step: 1, default: 128 },
-   { name: 'x_offset',  type: 'range',  label: 'x_offset',       min: 0,    max: 128,       step: 1,    default: 0 },
+   { name: 'frequency',    type: 'range',  label: 'frequency',    min: 0,    max: 255, step: 1, default: 128 },
+   { name: 'phase',  type: 'range',  label: 'phase',       min: 0,    max: 128,       step: 1,    default: 0 },
    { name: 'alpha',    type: 'range',  label: 'Opacità',         min: 0,    max: 1,       step: 0.01, default: 0.4 },
    { name: 'gap',      type: 'bool',   label: 'Gap trasparente', default: true },
    { name: 'mode',     type: 'select', label: 'Modalità',        options: ['stripe', 'chevron'], default: 'chevron' }
@@ -59,15 +55,6 @@ function scale (number, inMin, inMax, outMin, outMax) {
 }
 
 
-function drawPerlin(u,v,p) {
-    let u_denorm = Math.floor(u*128);
-    let v_denorm = Math.floor(v*128); 
-    console.log("indexes ", u_denorm, v_denorm, " : ", perlin[u_denorm*128+v_denorm])
-    let current_perlin = (Math.floor(255*perlin[(((u_denorm+p.x_offset)%128)*128+v_denorm) ])) ;
-    return current_perlin > p.threshold ? [255, current_perlin, 255] : null; 
-    
-}
-
 function drawPeriodic(u, v, p) {
     let u_sine = Math.sin(u*360*p.frequency+p.phase-v);
     let v_sine = Math.sin(v*360*p.frequency+p.phase-u);
@@ -79,9 +66,8 @@ export function paintUV(ctx, params) {
    const h = ctx.canvas.height;
     console.log("width height", w, h)
    const p = {
-      threshold:   params.threshold   ?? 0.5,
-      x_offset:   params.x_offset   ?? 21,
-      phase: params.phase  ?? 3,
+      frequency:   params.frequency   ?? 0.5,
+      phase:   params.phase   ?? 21,
       alpha:   params.alpha   ?? 0.4,
       gap:     params.gap     ?? true,
       mode:    params.mode    ?? 'chevron'
@@ -93,7 +79,7 @@ export function paintUV(ctx, params) {
       const v = (py + 0.5) / h;
       for (let px = 0; px < w; px++) {
          const u = (px + 0.5) / w;
-         const col = drawPerlin(u, v, p);
+         const col = drawPeriodic(u, v, p);
          const idx = (py * w + px) * 4;
          if (col) {
             data[idx]     = col[0];
